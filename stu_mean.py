@@ -45,10 +45,12 @@ def populate_peeps_avg():
 def update_average(student_id, new_average):
     command = "UPDATE peeps_avg SET average = %d WHERE id = %d" % (new_average, student_id)
     c.execute(command)
+    db.commit()
 
 def add_course(row):
     command = 'INSERT INTO courses VALUES ("%s", %d, %d)' % (row['code'], int(row['mark']), int(row['id']))
     c.execute(command)
+    db.commit()
     
 def add_courses():
     with open('courses.csv') as f:
@@ -66,9 +68,12 @@ def run():
     student_info(1)
     student_info(5)
 
-    command = "CREATE TABLE peeps_avg (id INTEGER, average INTEGER)"
-    c.execute(command)
-    populate_peeps_avg()
+    try:
+        command = "CREATE TABLE peeps_avg (id INTEGER, average INTEGER)"
+        c.execute(command)
+        populate_peeps_avg()
+    except sqlite3.OperationalError:
+        print "peeps_avg already exists"
 
     add_courses()
     student_info(1)
