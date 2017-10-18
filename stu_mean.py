@@ -6,15 +6,18 @@ f = 'discobandit.db'
 db = sqlite3.connect(f)
 c = db.cursor()
 
+#helper function 
 def get_student(student_id):
     command = 'SELECT name, mark FROM peeps, courses WHERE courses.id = peeps.id AND peeps.id = %d' % student_id
     return c.execute(command)
 
+#takes a student's id and returns their name
 def get_name(student_id):
     student = get_student(student_id)
     for record in student:
         return record[0]
 
+#takes a student's id and returns their grades in a dictionary
 def get_grade(student_id):
     student = get_student(student_id)
     grades = []
@@ -22,6 +25,7 @@ def get_grade(student_id):
         grades.append(course[1])
     return grades
 
+#takes a student's id and returns their average
 def get_average(student_id):
     student = get_student(student_id)
     total = 0
@@ -31,6 +35,7 @@ def get_average(student_id):
         courses += 1
     return total * 1.0 / courses
 
+#takes a student's id and returns their name, id, and average
 def student_info(student_id):
     print "Name: " + get_name(student_id) + "\nID: " + str(student_id) + "\nAverage: " + \
         str(get_average(student_id))
@@ -42,16 +47,18 @@ def populate_peeps_avg():
         c.execute(command)
     db.commit()
 
+#takes a student's id and their new average and updates the database with this new average
 def update_average(student_id, new_average):
     command = "UPDATE peeps_avg SET average = %d WHERE id = %d" % (new_average, student_id)
     c.execute(command)
     db.commit()
 
+#adds course row to database
 def add_course(row):
     command = 'INSERT INTO courses VALUES ("%s", %d, %d)' % (row['code'], int(row['mark']), int(row['id']))
     c.execute(command)
     db.commit()
-    
+  
 def add_courses():
     with open('courses.csv') as f:
         reader = csv.DictReader(f)
